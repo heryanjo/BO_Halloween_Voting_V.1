@@ -20,6 +20,7 @@ import {
   removeStaffMember,
 } from '../utils/api.ts';
 import { AdminLoginGate } from './AdminLoginGate.tsx';
+import { appUrl, mediaUrl, withBase } from '../utils/basePath.ts';
 
 interface AdminPortalProps {
   onNavigateHome: () => void;
@@ -521,7 +522,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
           {/* Logo & Brand */}
           <div className="flex items-center gap-3 pb-5 border-b border-[#342D2A]">
             <img
-              src="/assets/aistudio/BO_LOGO_cc0ca4aa.png"
+              src={mediaUrl("/assets/aistudio/BO_LOGO_cc0ca4aa.png")}
               alt="Black Owl"
               className="w-11 h-11 object-contain drop-shadow"
             />
@@ -738,7 +739,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
           {/* Direct Quick Launch Buttons */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <a
-              href={`/vote/${selectedOutlet}`}
+              href={withBase(`/vote/${selectedOutlet}`)}
               target="_blank"
               rel="noreferrer"
               className="px-3 py-1.5 rounded-xl bg-[#342D2A] hover:bg-[#3E3531] border border-[#4A3F39] text-[#F7F0EA] hover:text-[#F6AC67] font-semibold flex items-center gap-1.5"
@@ -750,7 +751,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
             </a>
 
             <a
-              href={`/leaderboard/${selectedOutlet}`}
+              href={withBase(`/leaderboard/${selectedOutlet}`)}
               target="_blank"
               rel="noreferrer"
               className="px-3 py-1.5 rounded-xl bg-[#342D2A] hover:bg-[#3E3531] border border-[#4A3F39] text-[#F7F0EA] hover:text-[#F6AC67] font-semibold flex items-center gap-1.5"
@@ -762,7 +763,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
             </a>
 
             <a
-              href={`/display/${selectedOutlet}`}
+              href={withBase(`/display/${selectedOutlet}`)}
               target="_blank"
               rel="noreferrer"
               className="px-3.5 py-1.5 rounded-xl bg-[#F6AC67] hover:bg-[#F29D4E] text-[#211D1C] font-extrabold flex items-center gap-1.5 shadow"
@@ -964,7 +965,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
                           </td>
                           <td className="py-3 px-4">
                             <img
-                              src={c.imageUrl}
+                              src={mediaUrl(c.imageUrl)}
                               alt={c.name}
                               className="w-10 h-12 rounded-lg object-cover bg-[#171413]"
                               onError={(e) => {
@@ -1235,7 +1236,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
                   <button
                     onClick={() =>
                       openQrModal(
-                        `${window.location.origin}/vote/${selectedOutlet}`,
+                        appUrl(`/vote/${selectedOutlet}`),
                         `Guest Voting QR — ${currentOutletObj?.name}`
                       )
                     }
@@ -1243,7 +1244,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
                   >
                     <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                        typeof window !== 'undefined' ? `${window.location.origin}/vote/${selectedOutlet}` : ''
+                        typeof window !== 'undefined' ? appUrl(`/vote/${selectedOutlet}`) : ''
                       )}&bgcolor=F6AC67&color=211D1C&margin=1`}
                       alt="Guest Voting QR"
                       className="w-36 h-36 rounded-lg object-contain"
@@ -1254,7 +1255,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
                 <button
                   onClick={() =>
                     openQrModal(
-                      `${window.location.origin}/vote/${selectedOutlet}`,
+                      appUrl(`/vote/${selectedOutlet}`),
                       `Guest Voting QR — ${currentOutletObj?.name}`
                     )
                   }
@@ -1282,7 +1283,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
                   <button
                     onClick={() =>
                       openQrModal(
-                        `${window.location.origin}/leaderboard/${selectedOutlet}`,
+                        appUrl(`/leaderboard/${selectedOutlet}`),
                         `Live Leaderboard QR — ${currentOutletObj?.name}`
                       )
                     }
@@ -1290,7 +1291,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
                   >
                     <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                        typeof window !== 'undefined' ? `${window.location.origin}/leaderboard/${selectedOutlet}` : ''
+                        typeof window !== 'undefined' ? appUrl(`/leaderboard/${selectedOutlet}`) : ''
                       )}&bgcolor=D8B37A&color=211D1C&margin=1`}
                       alt="Leaderboard QR"
                       className="w-36 h-36 rounded-lg object-contain"
@@ -1301,7 +1302,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
                 <button
                   onClick={() =>
                     openQrModal(
-                      `${window.location.origin}/leaderboard/${selectedOutlet}`,
+                      appUrl(`/leaderboard/${selectedOutlet}`),
                       `Live Leaderboard QR — ${currentOutletObj?.name}`
                     )
                   }
@@ -1335,7 +1336,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
                 </div>
 
                 <a
-                  href={`/display/${selectedOutlet}`}
+                  href={withBase(`/display/${selectedOutlet}`)}
                   target="_blank"
                   rel="noreferrer"
                   className="w-full py-2.5 rounded-xl bg-[#F6AC67] hover:bg-[#F29D4E] text-[#211D1C] text-xs font-extrabold tracking-wider uppercase text-center transition-all cursor-pointer shadow"
@@ -1422,7 +1423,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onNavigateHome }) => {
                   <div className="relative w-32 h-40 rounded-2xl overflow-hidden bg-[#1D1817] border border-[#4A3F39] flex items-center justify-center flex-shrink-0">
                     {formImageUrl ? (
                       <img
-                        src={formImageUrl}
+                        src={mediaUrl(formImageUrl)}
                         alt="Preview"
                         style={{ transform: `rotate(${uploadRotation}deg)` }}
                         className="w-full h-full object-cover transition-transform"

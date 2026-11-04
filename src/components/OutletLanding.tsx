@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { Outlet } from '../types/index.ts';
 import { fetchOutlets } from '../utils/api.ts';
+import { mediaUrl } from '../utils/basePath.ts';
 
 interface OutletLandingProps {
   onSelectOutlet: (code: string, route: 'vote' | 'leaderboard' | 'display') => void;
@@ -31,7 +32,7 @@ export const OutletLanding: React.FC<OutletLandingProps> = ({
         {/* Brand Header */}
         <div className="flex flex-col items-center mb-10">
           <img
-            src="/assets/aistudio/BO_LOGO_cc0ca4aa.png"
+            src={mediaUrl("/assets/aistudio/BO_LOGO_cc0ca4aa.png")}
             alt="Black Owl Logo"
             className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-[0_4px_25px_rgba(216,179,122,0.4)] mb-4 hover:scale-105 transition-transform"
           />
