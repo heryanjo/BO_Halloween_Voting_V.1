@@ -91,10 +91,55 @@ export function subscribeToOutletEvents(
   onUpdate: () => void,
   onConnectionChange?: (connected: boolean) => void
 ): () => void {
+  const UPDATE_DEBOUNCE_MS = 1000;
+  const RECONNECT_MS = 3000;
+
   let eventSource: EventSource | null = null;
-  let retryTimeout: any = null;
+  let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+  let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+  let disposed = false;
+
+  function clearRetry() {
+    if (retryTimeout) {
+      clearTimeout(retryTimeout);
+      retryTimeout = null;
+    }
+  }
+
+  function clearDebounce() {
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = null;
+    }
+  }
+
+  function scheduleUpdate() {
+    clearDebounce();
+    debounceTimeout = setTimeout(() => {
+      debounceTimeout = null;
+      if (!disposed) onUpdate();
+    }, UPDATE_DEBOUNCE_MS);
+  }
+
+  function scheduleReconnect(delayMs = RECONNECT_MS) {
+    if (disposed || retryTimeout) return;
+    retryTimeout = setTimeout(() => {
+      retryTimeout = null;
+      connect();
+    }, delayMs);
+  }
 
   function connect() {
+    if (disposed) return;
+    // Avoid stacking EventSource instances
+    if (eventSource) {
+      if (eventSource.readyState === EventSource.CONNECTING || eventSource.readyState === EventSource.OPEN) {
+        return;
+      }
+      eventSource.close();
+      eventSource = null;
+    }
+
     try {
       eventSource = new EventSource(apiUrl(`/api/events/${outletCode}`));
 
@@ -108,7 +153,7 @@ export function subscribeToOutletEvents(
           if (data.type === 'CONNECTED') {
             if (onConnectionChange) onConnectionChange(true);
           } else if (data.type === 'UPDATE' && data.outletCode === outletCode) {
-            onUpdate();
+            scheduleUpdate();
           }
         } catch {
           // ignore keepalive pings
@@ -121,19 +166,21 @@ export function subscribeToOutletEvents(
           eventSource.close();
           eventSource = null;
         }
-        // Retry connection after 3 seconds
-        retryTimeout = setTimeout(connect, 3000);
+        // Single manual reconnect — close first so browser does not also auto-reconnect
+        scheduleReconnect(RECONNECT_MS);
       };
-    } catch (e) {
+    } catch {
       if (onConnectionChange) onConnectionChange(false);
-      retryTimeout = setTimeout(connect, 4000);
+      scheduleReconnect(4000);
     }
   }
 
   connect();
 
   return () => {
-    if (retryTimeout) clearTimeout(retryTimeout);
+    disposed = true;
+    clearRetry();
+    clearDebounce();
     if (eventSource) {
       eventSource.close();
       eventSource = null;

@@ -129,19 +129,31 @@ async function startServer() {
     sseClients.set(code, new Set());
   }
 
+  // Coalesce SSE UPDATE broadcasts: at most one per outlet every 750ms
+  const SSE_COALESCE_MS = 750;
+  const pendingSseFlush: Map<OutletCode, ReturnType<typeof setTimeout>> = new Map();
+
+  const flushSseUpdate = (outletCode: OutletCode) => {
+    pendingSseFlush.delete(outletCode);
+    const clients = sseClients.get(outletCode);
+    if (!clients || clients.size === 0) return;
+    const payload = JSON.stringify({
+      type: 'UPDATE',
+      outletCode,
+      timestamp: Date.now(),
+    });
+    for (const client of clients) {
+      client.write(`data: ${payload}\n\n`);
+    }
+  };
+
   // Subscribe to VotingEngine updates to push SSE events
   votingEngine.subscribe((outletCode) => {
-    const clients = sseClients.get(outletCode);
-    if (clients && clients.size > 0) {
-      const payload = JSON.stringify({
-        type: 'UPDATE',
-        outletCode,
-        timestamp: Date.now(),
-      });
-      for (const client of clients) {
-        client.write(`data: ${payload}\n\n`);
-      }
-    }
+    if (pendingSseFlush.has(outletCode)) return;
+    pendingSseFlush.set(
+      outletCode,
+      setTimeout(() => flushSseUpdate(outletCode), SSE_COALESCE_MS)
+    );
   });
 
   // --- API ROUTES ---
